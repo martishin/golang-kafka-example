@@ -1,2 +1,2 @@
-# golang-kafka-example
+# Go Kafka example
 Golang Kafka usage example
