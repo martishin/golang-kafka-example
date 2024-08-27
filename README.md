@@ -9,4 +9,4 @@ Golang Kafka usage example
 - [Go](https://go.dev/)
 - [Kafka](https://kafka.apache.org/)
 - [Confluent Kafka Library](https://github.com/confluentinc/confluent-kafka-go/)
-- [Docker](https://www.docker.com/)`
+- [Docker](https://www.docker.com/)
