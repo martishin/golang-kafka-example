@@ -1,0 +1,21 @@
+# Build stage
+FROM golang:1.23-bullseye AS builder
+
+# Install build tools needed for CGO
+RUN apt-get update && apt-get install -y gcc libc6-dev
+
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=1 go build -o consumer cmd/consumer/main.go
+
+# Run stage
+FROM alpine:3.20
+
+RUN apk add --no-cache bash coreutils gcompat
+
+WORKDIR /app
+COPY --from=builder /app/consumer /app/consumer
+CMD ["/app/consumer"]

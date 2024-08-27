@@ -1,0 +1,64 @@
+version: "3.9"
+
+networks:
+    kafka-net:
+        driver: bridge
+
+services:
+    zookeeper:
+        image: confluentinc/cp-zookeeper:latest
+        environment:
+            ZOOKEEPER_CLIENT_PORT: 32181
+            ZOOKEEPER_TICK_TIME: 2000
+        healthcheck:
+            test: [ "CMD", "nc", "-z", "localhost", "32181" ]
+            interval: 10s
+            retries: 5
+        networks:
+            - kafka-net
+
+    kafka:
+        image: confluentinc/cp-kafka:latest
+        depends_on:
+            - zookeeper
+        environment:
+            KAFKA_BROKER_ID: 1
+            KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+            JMX_PORT: 9999
+        networks:
+            - kafka-net
+        healthcheck:
+            test: [ "CMD", "nc", "-z", "localhost", "9092" ]
+            interval: 10s
+            retries: 5
+
+    producer:
+        image: golang-kafka-example-producer
+        restart: on-failure
+        build:
+            context: .
+            dockerfile: Dockerfile.producer
+        environment:
+            KAFKA_ADDR: kafka:9092
+            KAFKA_TOPIC: orders
+        depends_on:
+            - kafka
+        networks:
+            - kafka-net
+
+    consumer:
+        image: golang-kafka-example-consumer
+        restart: on-failure
+        build:
+            context: .
+            dockerfile: Dockerfile.consumer
+        environment:
+            KAFKA_ADDR: kafka:9092
+            KAFKA_TOPIC: orders
+            KAFKA_CONSUMER_GROUP: order-consumer-group
+        depends_on:
+            - kafka
+        networks:
+            - kafka-net
