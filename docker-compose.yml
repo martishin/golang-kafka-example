@@ -48,7 +48,7 @@ services:
         networks:
             - kafka-net
 
-    consumer:
+    consumer-1:
         image: golang-kafka-example-consumer
         restart: on-failure
         build:
@@ -57,7 +57,24 @@ services:
         environment:
             KAFKA_ADDR: kafka:9092
             KAFKA_TOPIC: orders
-            KAFKA_CONSUMER_GROUP: order-consumer-group
+            KAFKA_CONSUMER_GROUP: order-consumer-group-1
+            TASK: "SENDING SMS..."
+        depends_on:
+            - kafka
+        networks:
+            - kafka-net
+
+    consumer-2:
+        image: golang-kafka-example-consumer
+        restart: on-failure
+        build:
+            context: .
+            dockerfile: Dockerfile.consumer
+        environment:
+            KAFKA_ADDR: kafka:9092
+            KAFKA_TOPIC: orders
+            KAFKA_CONSUMER_GROUP: order-consumer-group-2
+            TASK: "PACKING ORDER..."
         depends_on:
             - kafka
         networks:

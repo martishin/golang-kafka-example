@@ -23,6 +23,8 @@ func consumeOrders() {
 		consumerGroup = "order-consumer-group"
 	}
 
+	task := os.Getenv("TASK")
+
 	consumer, err := kafka.NewConsumer(
 		&kafka.ConfigMap{
 			"bootstrap.servers": kafkaAddr,
@@ -56,7 +58,7 @@ func consumeOrders() {
 		// 	log.Fatalf("Failed to unmarshal message: %v\n", err)
 		// }
 
-		log.Printf("Received order: %+v\n", string(msg.Value))
+		log.Printf("Received order: %+v, %s\n", string(msg.Value), task)
 	}
 }
 
